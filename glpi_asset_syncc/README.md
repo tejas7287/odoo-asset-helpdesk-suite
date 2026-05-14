@@ -16,31 +16,35 @@
 
 ## Description
 
-Pull GLPI computer assets into Odoo via REST API
+Pull GLPI computer assets into Odoo via REST API with UUID upsert and audit log
 
 GLPI Asset Sync
 ===============
-One-directional, pull-based integration that reads GLPI Computer assets via
-the GLPI REST API and upserts them into the Odoo product master.
-API flow
---------
-initSession → (changeActiveEntities) → Computer/ batches → killSession
-Upsert key priority
--------------------
-1. x_glpi_id       GLPI primary integer ID
-2. x_glpi_uuid     Motherboard UUID reported by inventory agent
-3. x_glpi_asset_tag Inventory number / other serial
-Features
---------
-* Session-based auth: user_token (preferred) or HTTP Basic fallback
-* App-Token header on every request
-* Entity scoping with optional recursive flag
-* Configurable batch size (max 200, GLPI limit)
-* listSearchOptions discovery + /search/Computer forcedisplay support
-* Full audit log per run (fetched / created / updated / skipped / errors)
-* Scheduled cron (inactive by default — activate after configuring)
-* Manual "Sync Now" server action bound to Products list and form
-* Settings page under Settings > GLPI Asset Sync
+One-way integration: GLPI REST API → Odoo product master.
+What it does
+------------
+* Opens a GLPI REST session (initSession / App-Token + User-Token or Basic auth)
+* Optionally restricts to one GLPI entity (changeActiveEntities)
+* Pages through all Computer records in configurable batches (max 200/request)
+* Upserts into product.product using a 3-key fallback:
+1. x_glpi_id        -- GLPI primary integer ID
+2. x_glpi_uuid      -- Motherboard UUID
+3. x_glpi_asset_tag -- Inventory number / other serial
+* Writes a full audit log (glpi.sync.log) per run with per-record exceptions
+* Exposes a "Sync Now" server action and a scheduled cron (inactive by default)
+* Test Connection button on Settings page verifies credentials instantly
+* Field Discovery wizard calls listSearchOptions/Computer and renders a table
+of field IDs — use these IDs in forcedisplay when switching to the search API
+Fields added to product.product
+---------------------------------
+x_glpi_id           Upsert key 1 — GLPI primary ID
+x_glpi_uuid         Upsert key 2 — Motherboard UUID
+x_glpi_asset_tag    Upsert key 3 — Inventory number / other serial
+x_glpi_serial       Hardware serial number
+x_glpi_manufacturer Manufacturer name
+x_glpi_itemtype     Usually "Computer"
+x_glpi_last_sync    Timestamp of last successful sync
+x_glpi_raw_json     Raw GLPI JSON payload (debug)
 
 ## Functionality
 
@@ -66,6 +70,10 @@ Features
 | `glpi_entity_recursive` | `Boolean` |
 | `glpi_batch_size` | `Integer` |
 
+**Key Methods:**
+
+- `action_test_glpi_connection()` — Action/workflow method
+
 #### `glpi.sync.log` — GLPI Asset Sync Log
 
 **File:** `models/glpi_sync_log.py`
@@ -77,14 +85,15 @@ Features
 | `sync_start` | `Datetime` |
 | `sync_end` | `Datetime` |
 | `state` | `Selection` |
+| `triggered_by` | `Selection` |
 | `fetched` | `Integer` |
 | `created` | `Integer` |
 | `updated` | `Integer` |
 | `skipped` | `Integer` |
 | `error_count` | `Integer` |
-| `duration_seconds` | `Float` |
 | `error_message` | `Text` |
 | `exceptions` | `Text` |
+| `duration_seconds` | `Float` |
 
 **Key Methods:**
 
@@ -104,30 +113,50 @@ Features
 | `x_glpi_itemtype` | `Char` |
 | `x_glpi_uuid` | `Char` |
 | `x_glpi_asset_tag` | `Char` |
+| `x_glpi_serial` | `Char` |
+| `x_glpi_manufacturer` | `Char` |
 | `x_glpi_last_sync` | `Datetime` |
 | `x_glpi_raw_json` | `Text` |
 
 **Key Methods:**
 
-- `_get_glpi_client()`
 - `action_sync_glpi_now()` — Action/workflow method
+
+#### `glpi.field.map` — GLPI Computer Field Discovery
+
+**File:** `wizard/glpi_field_map.py`
+
+**Fields:**
+
+| Field | Type |
+|-------|------|
+| `itemtype` | `Char` |
+| `result_json` | `Text` |
+| `result_table` | `Html` |
+| `state` | `Selection` |
+
+**Key Methods:**
+
+- `_get_client()`
+- `action_fetch_fields()` — Action/workflow method
 
 ### Views & UI
 
-**Form Views:** `product_asset_views.xml`
+**Form Views:** `glpi_sync_log_views.xml`, `product_asset_views.xml`
 
-**List/Tree Views:** `product_asset_views.xml`
+**List/Tree Views:** `glpi_sync_log_views.xml`
 
-**Menus:** `product_asset_views.xml`
+**Menus:** `glpi_sync_log_views.xml`, `product_asset_views.xml`
 
 ### Security
 
-**Access Rights:** 2 model access rules defined
+**Access Rights:** 3 model access rules defined
 
 | Model |
 |-------|
-| `glpi.sync.log manager` |
+| `glpi.sync.log admin` |
 | `glpi.sync.log user` |
+| `glpi.field.map admin` |
 
 ### Data & Automation
 
@@ -137,14 +166,14 @@ Features
 
 | Module | Type |
 |--------|------|
+| `base` | Odoo Core |
 | `product` | Odoo Core |
 | `base_setup` | Odoo Core |
 
 ## File Structure
 
 ```
-glpi_asset_sync/
-├── README.md
+glpi_asset_syncc/
 ├── __init__.py
 ├── __manifest__.py
 ├── data/
@@ -159,9 +188,14 @@ glpi_asset_sync/
 ├── services/
 │   ├── __init__.py
 │   └── glpi_client.py
-└── views/
-    ├── product_asset_views.xml
-    └── res_config_settings_views.xml
+├── views/
+│   ├── glpi_sync_log_views.xml
+│   ├── product_asset_views.xml
+│   └── res_config_settings_views.xml
+└── wizard/
+    ├── __init__.py
+    ├── glpi_field_map.py
+    └── glpi_field_map_views.xml
 ```
 
 ## Installation
