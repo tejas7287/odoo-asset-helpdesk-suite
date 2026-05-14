@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- Scheduled sync — inactive by default.
+         Activate in Settings > Technical > Scheduled Actions after verifying
+         the connection with the Test Connection button in Settings. -->
+    <record id="ir_cron_glpi_sync_assets" model="ir.cron">
+        <field name="name">GLPI: Sync Computer Assets</field>
+        <field name="model_id" ref="product.model_product_product"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_sync_glpi_computers()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">False</field>
+    </record>
+
+    <!-- "Sync Now" server action bound to the product list and form views -->
+    <record id="action_glpi_sync_now" model="ir.actions.server">
+        <field name="name">GLPI: Sync Now</field>
+        <field name="model_id" ref="product.model_product_product"/>
+        <field name="state">code</field>
+        <field name="code">model.action_sync_glpi_now()</field>
+        <field name="binding_model_id" ref="product.model_product_product"/>
+        <field name="binding_view_types">list,form</field>
+    </record>
+
+</odoo>

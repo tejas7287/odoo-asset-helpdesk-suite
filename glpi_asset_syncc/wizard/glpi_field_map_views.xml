@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         glpi.field.map wizard — form view
+         ============================================================ -->
+    <record id="view_glpi_field_map_form" model="ir.ui.view">
+        <field name="name">glpi.field.map.form</field>
+        <field name="model">glpi.field.map</field>
+        <field name="arch" type="xml">
+            <form string="GLPI Field Discovery">
+                <sheet>
+                    <group string="Query">
+                        <field name="itemtype"/>
+                    </group>
+                    <footer invisible="state == 'done'">
+                        <button name="action_fetch_fields"
+                                type="object"
+                                string="Fetch Field IDs"
+                                class="btn-primary"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                    <group string="Results — Field ID Table"
+                           invisible="state != 'done'">
+                        <field name="result_table" nolabel="1" widget="html"/>
+                    </group>
+                    <group string="Raw JSON" invisible="state != 'done'">
+                        <field name="result_json" nolabel="1" widget="text" readonly="1"/>
+                    </group>
+                    <footer invisible="state != 'done'">
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action to open the wizard -->
+    <record id="action_glpi_field_map" model="ir.actions.act_window">
+        <field name="name">GLPI Field Discovery</field>
+        <field name="res_model">glpi.field.map</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu under GLPI Asset Sync root -->
+    <menuitem id="menu_glpi_field_map"
+              name="Field Discovery"
+              parent="menu_glpi_root"
+              action="action_glpi_field_map"
+              sequence="30"
+              groups="base.group_system"/>
+
+</odoo>

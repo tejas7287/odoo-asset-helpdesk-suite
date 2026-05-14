@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         product.product form — add GLPI tab
+         ============================================================ -->
+    <record id="product_product_form_view_glpi" model="ir.ui.view">
+        <field name="name">product.product.form.glpi</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="GLPI" name="glpi_tab">
+                    <group string="Identity">
+                        <group>
+                            <field name="x_glpi_id" readonly="1"/>
+                            <field name="x_glpi_itemtype" readonly="1"/>
+                            <field name="x_glpi_uuid" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="x_glpi_asset_tag"/>
+                            <field name="x_glpi_serial" readonly="1"/>
+                            <field name="x_glpi_manufacturer" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Sync Status">
+                        <field name="x_glpi_last_sync" readonly="1"/>
+                    </group>
+                    <group string="Raw API Payload" invisible="not x_glpi_raw_json">
+                        <field name="x_glpi_raw_json" readonly="1" nolabel="1" widget="text"/>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Menus
+         ============================================================ -->
+    <record id="action_glpi_open_products" model="ir.actions.act_window">
+        <field name="name">GLPI Assets</field>
+        <field name="res_model">product.product</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('x_glpi_id', '!=', 0)]</field>
+        <field name="context">{'search_default_group_by_nothing': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No assets synced yet.</p>
+            <p>Configure Settings, test the connection, then trigger a sync.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_glpi_root"
+              name="GLPI Asset Sync"
+              sequence="90"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_glpi_assets"
+              name="Assets"
+              parent="menu_glpi_root"
+              action="action_glpi_open_products"
+              sequence="10"
+              groups="base.group_system"/>
+
+</odoo>

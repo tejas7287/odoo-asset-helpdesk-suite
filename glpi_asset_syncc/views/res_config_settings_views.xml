@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Settings panel — Odoo 19 pattern.
+        inherit base.res_config_settings_view_form, xpath //form, use <app>/<block>/<setting>.
+    -->
+    <record id="res_config_settings_view_glpi" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.glpi_asset_sync</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="GLPI Asset Sync"
+                     string="GLPI Asset Sync"
+                     name="glpi_asset_sync"
+                     groups="base.group_system">
+
+                    <block title="Connection" name="glpi_connection_block">
+
+                        <setting string="GLPI Base URL"
+                                 id="glpi_base_url_setting"
+                                 help="Base URL of your GLPI server. Do NOT add /apirest.php — it is appended automatically.">
+                            <field name="glpi_base_url" placeholder="http://glpi.example.com"/>
+                        </setting>
+
+                        <setting string="App Token"
+                                 id="glpi_app_token_setting"
+                                 help="Required for every API call. Generate in GLPI: Setup > General > API > Add application token.">
+                            <field name="glpi_app_token" placeholder="App Token (required)"/>
+                        </setting>
+
+                        <setting string="User API Token"
+                                 id="glpi_user_token_setting"
+                                 help="Preferred — no password sent over the wire. Generate in GLPI user profile > Remote access keys.">
+                            <field name="glpi_user_token" placeholder="User API Token (preferred)"/>
+                        </setting>
+
+                        <setting string="Username"
+                                 id="glpi_username_setting"
+                                 help="HTTP Basic auth username. Used only when User API Token is blank.">
+                            <field name="glpi_username" placeholder="Username (fallback)"/>
+                        </setting>
+
+                        <setting string="Password"
+                                 id="glpi_password_setting"
+                                 help="HTTP Basic auth password. Used only when User API Token is blank.">
+                            <field name="glpi_password" password="True" placeholder="Password (fallback)"/>
+                        </setting>
+
+                        <setting string="Verify SSL Certificate"
+                                 id="glpi_verify_ssl_setting"
+                                 help="Keep enabled in production. Disable only for self-signed certificates in staging.">
+                            <field name="glpi_verify_ssl"/>
+                        </setting>
+
+                        <!-- Test connection button -->
+                        <setting id="glpi_test_connection_setting"
+                                 string="Test Connection"
+                                 help="Opens a real GLPI session and verifies credentials without running a sync.">
+                            <button name="action_test_glpi_connection"
+                                    type="object"
+                                    string="Test Connection"
+                                    class="btn-primary"
+                                    icon="fa-plug"/>
+                        </setting>
+
+                    </block>
+
+                    <block title="Sync Scope" name="glpi_sync_scope_block">
+
+                        <setting string="GLPI Entity ID"
+                                 id="glpi_entity_id_setting"
+                                 help="0 = root entity. Enter a positive integer to restrict sync to one entity.">
+                            <field name="glpi_entity_id"/>
+                        </setting>
+
+                        <setting string="Include Sub-entities"
+                                 id="glpi_entity_recursive_setting"
+                                 help="Passes is_recursive=1 to changeActiveEntities — includes all child entities.">
+                            <field name="glpi_entity_recursive"/>
+                        </setting>
+
+                        <setting string="Batch Size"
+                                 id="glpi_batch_size_setting"
+                                 help="Records per API request. GLPI hard maximum is 200.">
+                            <field name="glpi_batch_size"/>
+                        </setting>
+
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

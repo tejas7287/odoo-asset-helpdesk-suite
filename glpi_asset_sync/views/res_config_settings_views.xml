@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Odoo 19 settings pattern — taken directly from the hr module source.
+        Inherit base.res_config_settings_view_form, xpath into //form,
+        and use <app> / <block> / <setting> tags inside that xpath.
+    -->
+    <record id="res_config_settings_view_glpi" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.glpi_asset_sync</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="GLPI Asset Sync"
+                     string="GLPI Asset Sync"
+                     name="glpi_asset_sync"
+                     groups="base.group_system">
+
+                    <block title="Connection" name="glpi_connection_block">
+
+                        <setting string="GLPI Base URL"
+                                 id="glpi_base_url_setting"
+                                 help="Base URL of your GLPI server, e.g. https://glpi.example.com (no trailing slash, no /apirest.php)">
+                            <field name="glpi_base_url"
+                                   placeholder="https://glpi.example.com"
+                                   class="o_light_label"/>
+                        </setting>
+
+                        <setting string="App Token"
+                                 id="glpi_app_token_setting"
+                                 help="Application token — GLPI: Setup ▶ General ▶ API ▶ Add application token">
+                            <field name="glpi_app_token"
+                                   placeholder="App Token (required)"
+                                   class="o_light_label"/>
+                        </setting>
+
+                        <setting string="User API Token"
+                                 id="glpi_user_token_setting"
+                                 help="Preferred over username/password. Generate in GLPI user profile ▶ Remote access keys.">
+                            <field name="glpi_user_token"
+                                   placeholder="User API Token (preferred)"
+                                   class="o_light_label"/>
+                        </setting>
+
+                        <setting string="Username"
+                                 id="glpi_username_setting"
+                                 help="Fallback authentication — used only when User API Token is blank.">
+                            <field name="glpi_username"
+                                   placeholder="Username"
+                                   class="o_light_label"/>
+                        </setting>
+
+                        <setting string="Password"
+                                 id="glpi_password_setting"
+                                 help="Fallback authentication password.">
+                            <field name="glpi_password"
+                                   password="True"
+                                   placeholder="Password"
+                                   class="o_light_label"/>
+                        </setting>
+
+                        <setting string="Verify SSL Certificate"
+                                 id="glpi_verify_ssl_setting"
+                                 help="Disable only for self-signed certificates in staging environments.">
+                            <field name="glpi_verify_ssl"/>
+                        </setting>
+
+                    </block>
+
+                    <block title="Sync Scope" name="glpi_sync_scope_block">
+
+                        <setting string="GLPI Entity ID"
+                                 id="glpi_entity_id_setting"
+                                 help="Set to 0 for the root entity. Enter a positive integer to restrict sync to one entity.">
+                            <field name="glpi_entity_id" class="o_light_label w-25"/>
+                        </setting>
+
+                        <setting string="Include Sub-entities"
+                                 id="glpi_entity_recursive_setting"
+                                 help="Passes is_recursive=1 to changeActiveEntities when enabled.">
+                            <field name="glpi_entity_recursive"/>
+                        </setting>
+
+                        <setting string="Batch Size"
+                                 id="glpi_batch_size_setting"
+                                 help="Number of Computer records fetched per API request. GLPI maximum is 200.">
+                            <field name="glpi_batch_size" class="o_light_label w-25"/>
+                        </setting>
+
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

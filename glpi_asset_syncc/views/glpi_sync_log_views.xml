@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         glpi.sync.log — list view
+         ============================================================ -->
+    <record id="view_glpi_sync_log_list" model="ir.ui.view">
+        <field name="name">glpi.sync.log.list</field>
+        <field name="model">glpi.sync.log</field>
+        <field name="arch" type="xml">
+            <list string="GLPI Sync Logs"
+                  default_order="sync_start desc"
+                  decoration-danger="state == 'error'"
+                  decoration-success="state == 'done'"
+                  decoration-muted="state == 'running'">
+                <field name="sync_start"/>
+                <field name="sync_end"/>
+                <field name="triggered_by"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-warning="state == 'running'"
+                       decoration-danger="state == 'error'"/>
+                <field name="fetched"/>
+                <field name="created"/>
+                <field name="updated"/>
+                <field name="skipped"/>
+                <field name="error_count"/>
+                <field name="duration_seconds" string="Duration (s)" digits="[6,1]"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         glpi.sync.log — form view
+         ============================================================ -->
+    <record id="view_glpi_sync_log_form" model="ir.ui.view">
+        <field name="name">glpi.sync.log.form</field>
+        <field name="model">glpi.sync.log</field>
+        <field name="arch" type="xml">
+            <form string="GLPI Sync Log">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="running,done,error"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Run Summary">
+                            <field name="sync_start"/>
+                            <field name="sync_end"/>
+                            <field name="triggered_by"/>
+                            <field name="duration_seconds" string="Duration (s)"/>
+                        </group>
+                        <group string="Record Counts">
+                            <field name="fetched"/>
+                            <field name="created"/>
+                            <field name="updated"/>
+                            <field name="skipped"/>
+                            <field name="error_count"/>
+                        </group>
+                    </group>
+                    <group string="Fatal Error" invisible="not error_message">
+                        <field name="error_message" nolabel="1" widget="text" readonly="1"/>
+                    </group>
+                    <group string="Per-record Exceptions" invisible="not exceptions">
+                        <field name="exceptions" nolabel="1" widget="text" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         Action + menu
+         ============================================================ -->
+    <record id="action_glpi_sync_log" model="ir.actions.act_window">
+        <field name="name">Sync Logs</field>
+        <field name="res_model">glpi.sync.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No sync runs yet.</p>
+            <p>Trigger a sync manually or activate the scheduled action.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_glpi_sync_logs"
+              name="Sync Logs"
+              parent="menu_glpi_root"
+              action="action_glpi_sync_log"
+              sequence="20"
+              groups="base.group_system"/>
+
+</odoo>

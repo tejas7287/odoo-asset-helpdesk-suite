@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_partner_form_inherit_asset_vendor" model="ir.ui.view">
+        <field name="name">res.partner.asset.vendor.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Place inside Sales & Purchase tab -->
+            <xpath expr="//page[@name='sales_purchases']//group[@name='misc']" position="inside">
+                <field name="is_asset_vendor"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_employee_form_inherit_assets" model="ir.ui.view">
+        <field name="name">hr.employee.asset.button</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//sheet//div[@name='button_box']" position="inside">
+
+                <button name="action_view_assets"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-cubes">
+
+                    <field name="asset_count" widget="statinfo" string="Assets"/>
+
+                </button>
+
+            </xpath>
+
+        </field>
+    </record>
+<record id="view_work_location_form_inherit_assets" model="ir.ui.view">
+    <field name="name">hr.work.location.form.assets.inherit</field>
+    <field name="model">hr.work.location</field>
+    <field name="inherit_id" ref="hr.hr_work_location_form_view"/>
+    <field name="arch" type="xml">
+
+        <xpath expr="//sheet" position="inside">
+
+            <div class="oe_button_box" name="button_box">
+
+                <button name="action_view_employees"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-users">
+                    <field name="employee_count" widget="statinfo" string="Employees"/>
+                </button>
+
+                <button name="action_view_assets"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-laptop">
+                    <field name="asset_count" widget="statinfo" string="Assets"/>
+                </button>
+
+            </div>
+
+        </xpath>
+
+    </field>
+</record>
+
+
+
+</odoo>
